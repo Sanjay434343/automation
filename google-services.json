@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "737425632308",
+    "project_id": "automation-4eed5",
+    "storage_bucket": "automation-4eed5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:737425632308:android:d3465e3a946a17e377ee61",
+        "android_client_info": {
+          "package_name": "com.automate.automation"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkYNcRE4I7czgK5lXd4JxO6D0FSGyiyvg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

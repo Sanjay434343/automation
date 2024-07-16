@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulb Remote</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .remote-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .remote-button {
+            margin: 10px;
+            padding: 20px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #ffd2d2;
+            color: #333;
+            border-radius: 10px;
+            box-shadow: 0 4px #bbb;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .remote-button:hover {
+            background-color: #ccc;
+            box-shadow: 0 2px #888;
+        }
+
+
+
+        
+    </style>
+</head>
+<body>
+    <div class="remote-container">
+        <h1>Bulb Remote</h1>
+        <div class="button-container">
+            <button id="turnOnButton" class="remote-button">ON</button>
+            <button id="turnOffButton" class="remote-button">OFF</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkYNcRE4I7czgK5lXd4JxO6D0FSGyiyvg",
+            authDomain: "automation-4eed5.firebaseapp.com",
+            databaseURL: "https://automation-4eed5-default-rtdb.firebaseio.com",
+            projectId: "automation-4eed5",
+            storageBucket: "automation-4eed5.appspot.com",
+            messagingSenderId: "737425632308",
+            appId: "1:737425632308:web:d3465e3a946a17e377ee61"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const turnOnButton = document.getElementById('turnOnButton');
+        const turnOffButton = document.getElementById('turnOffButton');
+
+        // Function to turn the bulb ON
+        function turnOnBulb() {
+            database.ref('bulb/status').set('on');
+        }
+
+        // Function to turn the bulb OFF
+        function turnOffBulb() {
+            database.ref('bulb/status').set('off');
+        }
+
+        // Button click listeners
+        turnOnButton.addEventListener('click', turnOnBulb);
+        turnOffButton.addEventListener('click', turnOffBulb);
+    </script>
+</body>
+</html>

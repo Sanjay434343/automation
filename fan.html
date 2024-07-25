@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kalnia+Glaze:wght@100..700&family=Playwrite+BE+WAL:wght@100..400&family=Reem+Kufi+Fun:wght@400..700&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+    <title>Realistic Fan</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #595959;
+        }
+
+        .fan-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+
+        .fan {
+            width: 100%;
+            height: auto;
+            transition: transform 1s linear;
+            color: white;
+        }
+
+        .rotate {
+            animation: spin linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .status-container {
+            font-family: "Roboto Mono", monospace;
+            position: relative;
+            top: 200px;
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ffffff00;
+            
+            text-align: center;
+        }
+
+        .status-container p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="fan-container">
+        <img class="fan" id="fan" src="https://img.icons8.com/fluency-systems-regular/48/fan.png" alt="fan"/>
+        <div class="status-container">
+            <p id="status">Status: Off</p>
+            <p id="speed">Speed: 1</p>
+        </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkYNcRE4I7czgK5lXd4JxO6D0FSGyiyvg",
+            authDomain: "automation-4eed5.firebaseapp.com",
+            databaseURL: "https://automation-4eed5-default-rtdb.firebaseio.com",
+            projectId: "automation-4eed5",
+            storageBucket: "automation-4eed5.appspot.com",
+            messagingSenderId: "737425632308",
+            appId: "1:737425632308:web:d3465e3a946a17e377ee61"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const fan = document.getElementById('fan');
+        const statusElement = document.getElementById('status');
+        const speedElement = document.getElementById('speed');
+
+        // Speed to animation duration mapping (in seconds for a full rotation)
+        const speedToDuration = {
+            1: 1.5, // 15 km/h -> 1.5 seconds per rotation
+            2: 1.0, // 25 km/h -> 1.0 seconds per rotation
+            3: 0.6, // 35 km/h -> 0.6 seconds per rotation
+            4: 0.4, // 50 km/h -> 0.4 seconds per rotation
+            5: 0.2  // 70 km/h -> 0.2 seconds per rotation
+        };
+
+        // Function to update the UI based on the fan status and speed
+        function updateUI(isFanOn, speed) {
+            if (isFanOn) {
+                fan.classList.add('rotate');
+                const duration = speedToDuration[speed] || 1.5; // Default to 1.5 seconds if speed is undefined
+                fan.style.animationDuration = `${duration}s`;
+                statusElement.textContent = ' Status: On';
+            } else {
+                fan.classList.remove('rotate');
+                fan.style.animationDuration = '0s'; // No rotation when off
+                statusElement.textContent = 'Status: Off';
+            }
+            speedElement.textContent = `Speed: ${speed}`;
+        }
+
+        // Listen for changes in the fan's status and speed in the database
+        const fanStatusRef = database.ref('fan/status');
+        const fanSpeedRef = database.ref('fan/speed');
+
+        let currentSpeed = 1; // Default speed value
+
+        fanStatusRef.on('value', (snapshot) => {
+            const isFanOn = snapshot.val() === 'on';
+            updateUI(isFanOn, currentSpeed);
+        });
+
+        fanSpeedRef.on('value', (snapshot) => {
+            currentSpeed = snapshot.val() || 1; // Default to 1 if no value is set
+            const isFanOn = fanStatusRef.once('value').then(snapshot => snapshot.val() === 'on');
+            isFanOn.then(isOn => updateUI(isOn, currentSpeed));
+        });
+    </script>
+</body>
+</html>

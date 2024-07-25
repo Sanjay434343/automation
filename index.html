@@ -1,91 +1,96 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Virtual Bulb</title>
-        <style>
-            body {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-                background-color: #f0f0f0;
-                transition: background-color 0.3s;
-            }
-            
-            .bulb-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                margin-bottom: 20px;
-            }
-            
-            .bulb {
-                width: 150px;
-                height: 150px;
-                background-color: #33333300;
-                border-radius: 50%;
-                border: 5px solid #00000007;
-                position: relative;
-                box-shadow: 0 0 10px 5px #999;
-                transition: background-color 0.3s, box-shadow 0.3s;
-            }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Page Container</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100vw;
+            height: 99vh;
+            border: 2px solid #ddd;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .navigation button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
 
-            .glow {
-                background-color: yellow !important;
-                box-shadow: 0 0 50px yellow !important;
-            }
+        .navigation button:hover {
+            background-color: #0056b3;
+        }
+
+        .iframe-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+
+        .iframe-container iframe.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navigation">
+            <button onclick="showPage(0)">BULB</button>
+            <button onclick="showPage(1)">FAN</button>
+            <button onclick="showPage(2)">REMOTE</button>
             
-            body.dark-mode {
-                background-color: black !important;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="bulb-container">
-            <div class="bulb" id="bulb"></div>
         </div>
-        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-        <script>
-            // Your web app's Firebase configuration
-            const firebaseConfig = {
-                apiKey: "AIzaSyBkYNcRE4I7czgK5lXd4JxO6D0FSGyiyvg",
-                authDomain: "automation-4eed5.firebaseapp.com",
-                databaseURL: "https://automation-4eed5-default-rtdb.firebaseio.com",
-                projectId: "automation-4eed5",
-                storageBucket: "automation-4eed5.appspot.com",
-                messagingSenderId: "737425632308",
-                appId: "1:737425632308:web:d3465e3a946a17e377ee61"
-            };
+        <div class="iframe-container">
+            <iframe src="bulb.html" id="page0" class="active"></iframe>
+            <iframe src="fan.html" id="page1"></iframe>
+            <iframe src="remote.html" id="page2"></iframe>
 
-            // Initialize Firebase
-            firebase.initializeApp(firebaseConfig);
-            const database = firebase.database();
+        </div>
+    </div>
 
-            const bulb = document.getElementById('bulb');
-            const body = document.body;
-
-            // Function to update the UI based on the bulb status
-            function updateUI(isBulbOn) {
-                if (isBulbOn) {
-                    bulb.classList.add('glow');
-                    body.classList.add('dark-mode');
-                } else {
-                    bulb.classList.remove('glow');
-                    body.classList.remove('dark-mode');
-                }
-            }
-
-            // Listen for changes in the bulb's status in the database
-            const bulbStatusRef = database.ref('bulb/status');
-            bulbStatusRef.on('value', (snapshot) => {
-                const isBulbOn = snapshot.val() === 'on';
-                updateUI(isBulbOn);
+    <script>
+        function showPage(index) {
+            const iframes = document.querySelectorAll('.iframe-container iframe');
+            iframes.forEach((iframe, i) => {
+                iframe.classList.toggle('active', i === index);
             });
-        </script>
-    </body>
-    </html>
+        }
+    </script>
+</body>
+</html>

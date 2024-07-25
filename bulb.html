@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Bulb</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            transition: background-color 0.3s;
+        }
+        
+        .bulb-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .bulb {
+            width: 150px;
+            height: 150px;
+            background-color: #33333300;
+            border-radius: 50%;
+            border: 5px solid #00000007;
+            position: relative;
+            box-shadow: 0 0 10px 5px #999;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        .glow {
+            background-color: yellow !important;
+        }
+        
+        body.dark-mode {
+            background-color: black !important;
+        }
+
+        .status-container {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 16px;
+            color: #919191;
+        }
+
+        .status-container span {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="bulb-container">
+        <div class="bulb" id="bulb"></div>
+    </div>
+
+    <div class="status-container" id="statusContainer">
+        <span id="status">Bulb Status: Off</span>
+        <span id="brightness">Brightness: 0</span>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkYNcRE4I7czgK5lXd4JxO6D0FSGyiyvg",
+            authDomain: "automation-4eed5.firebaseapp.com",
+            databaseURL: "https://automation-4eed5-default-rtdb.firebaseio.com",
+            projectId: "automation-4eed5",
+            storageBucket: "automation-4eed5.appspot.com",
+            messagingSenderId: "737425632308",
+            appId: "1:737425632308:web:d3465e3a946a17e377ee61"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const bulb = document.getElementById('bulb');
+        const body = document.body;
+        const statusContainer = document.getElementById('statusContainer');
+        const statusText = document.getElementById('status');
+        const brightnessText = document.getElementById('brightness');
+
+        // Function to update the UI based on the bulb status and brightness
+        function updateUI(isBulbOn, brightness) {
+            if (isBulbOn) {
+                bulb.classList.add('glow');
+                body.classList.add('dark-mode');
+                const glowIntensity = brightness * 10; // Convert brightness level (0-5) to glow intensity (0-50px)
+                bulb.style.boxShadow = `0 0 ${glowIntensity}px yellow`;
+                statusText.textContent = `Bulb Status: On`;
+            } else {
+                bulb.classList.remove('glow');
+                body.classList.remove('dark-mode');
+                bulb.style.boxShadow = '0 0 10px 5px #999';
+                statusText.textContent = `Bulb Status: Off`;
+            }
+            brightnessText.textContent = `Brightness: ${brightness}`;
+        }
+
+        // Listen for changes in the bulb's status and brightness in the database
+        const bulbStatusRef = database.ref('bulb/status');
+        const bulbBrightnessRef = database.ref('bulb/brightness');
+
+        function syncUI() {
+            bulbStatusRef.once('value', (statusSnapshot) => {
+                const isBulbOn = statusSnapshot.val() === 'on';
+                bulbBrightnessRef.once('value', (brightnessSnapshot) => {
+                    const brightness = brightnessSnapshot.val() || 0;
+                    updateUI(isBulbOn, brightness);
+                });
+            });
+        }
+
+        // Initial synchronization of UI
+        syncUI();
+
+        // Listen for real-time changes in the brightness
+        bulbBrightnessRef.on('value', (snapshot) => {
+            const brightness = snapshot.val() || 0;
+            bulbStatusRef.once('value', (statusSnapshot) => {
+                const isBulbOn = statusSnapshot.val() === 'on';
+                updateUI(isBulbOn, brightness);
+            });
+        });
+
+        // Listen for real-time changes in the bulb status
+        bulbStatusRef.on('value', (snapshot) => {
+            const isBulbOn = snapshot.val() === 'on';
+            bulbBrightnessRef.once('value', (brightnessSnapshot) => {
+                const brightness = brightnessSnapshot.val() || 0;
+                updateUI(isBulbOn, brightness);
+            });
+        });
+    </script>
+</body>
+</html>
